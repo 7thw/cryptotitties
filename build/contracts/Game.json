@@ -1,0 +1,129 @@
+{
+  "contractName": "Game",
+  "abi": [
+    {
+      "inputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    }
+  ],
+  "bytecode": "0x60606040523415600e57600080fd5b603580601b6000396000f3006060604052600080fd00a165627a7a72305820f61fb29fb5babcecb6a5f6c53dd49c01b9159c38df5ceecaf88e17cfa8e824ac0029",
+  "deployedBytecode": "0x6060604052600080fd00a165627a7a72305820f61fb29fb5babcecb6a5f6c53dd49c01b9159c38df5ceecaf88e17cfa8e824ac0029",
+  "sourceMap": "26:56:1:-;;;47:32;;;;;;;;26:56;;;;;;",
+  "deployedSourceMap": "26:56:1:-;;;;;",
+  "source": "pragma solidity ^0.4.18;\n\ncontract Game {\n\n    function Game() {\n        \n    }\n\n}",
+  "sourcePath": "/Users/rogerssampaio/Sites/cryptotitties/contracts/Game.sol",
+  "ast": {
+    "attributes": {
+      "absolutePath": "/Users/rogerssampaio/Sites/cryptotitties/contracts/Game.sol",
+      "exportedSymbols": {
+        "Game": [
+          72
+        ]
+      }
+    },
+    "children": [
+      {
+        "attributes": {
+          "literals": [
+            "solidity",
+            "^",
+            "0.4",
+            ".18"
+          ]
+        },
+        "id": 67,
+        "name": "PragmaDirective",
+        "src": "0:24:1"
+      },
+      {
+        "attributes": {
+          "baseContracts": [
+            null
+          ],
+          "contractDependencies": [
+            null
+          ],
+          "contractKind": "contract",
+          "documentation": null,
+          "fullyImplemented": true,
+          "linearizedBaseContracts": [
+            72
+          ],
+          "name": "Game",
+          "scope": 73
+        },
+        "children": [
+          {
+            "attributes": {
+              "constant": false,
+              "implemented": true,
+              "isConstructor": true,
+              "modifiers": [
+                null
+              ],
+              "name": "Game",
+              "payable": false,
+              "scope": 72,
+              "stateMutability": "nonpayable",
+              "superFunction": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 68,
+                "name": "ParameterList",
+                "src": "60:2:1"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 69,
+                "name": "ParameterList",
+                "src": "63:0:1"
+              },
+              {
+                "attributes": {
+                  "statements": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 70,
+                "name": "Block",
+                "src": "63:16:1"
+              }
+            ],
+            "id": 71,
+            "name": "FunctionDefinition",
+            "src": "47:32:1"
+          }
+        ],
+        "id": 72,
+        "name": "ContractDefinition",
+        "src": "26:56:1"
+      }
+    ],
+    "id": 73,
+    "name": "SourceUnit",
+    "src": "0:82:1"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.18+commit.9cf6e910.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "1.0.1",
+  "updatedAt": "2017-12-20T01:52:25.627Z"
+}

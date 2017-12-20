@@ -1,0 +1,3986 @@
+{
+  "contractName": "TittyBase",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "tittyIndexToOwner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "tittyApproveIndex",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "ownerTittiesCount",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "to",
+          "type": "address"
+        }
+      ],
+      "name": "Transfer",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "tittyId",
+          "type": "uint256"
+        }
+      ],
+      "name": "Creation",
+      "type": "event"
+    }
+  ],
+  "bytecode": "0x6060604052341561000f57600080fd5b6102198061001e6000396000f300606060405260043610610057576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063396878701461005c5780636c5eb382146100bf5780639743246514610122575b600080fd5b341561006757600080fd5b61007d600480803590602001909190505061016f565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b34156100ca57600080fd5b6100e060048080359060200190919050506101a2565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b341561012d57600080fd5b610159600480803573ffffffffffffffffffffffffffffffffffffffff169060200190919050506101d5565b6040518082815260200191505060405180910390f35b60016020528060005260406000206000915054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b60036020528060005260406000206000915054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b600260205280600052604060002060009150905054815600a165627a7a723058204420c2aecbb673800d768a24497ad519fc10bee6114aafd07b75d2eec82feb520029",
+  "deployedBytecode": "0x606060405260043610610057576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063396878701461005c5780636c5eb382146100bf5780639743246514610122575b600080fd5b341561006757600080fd5b61007d600480803590602001909190505061016f565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b34156100ca57600080fd5b6100e060048080359060200190919050506101a2565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b341561012d57600080fd5b610159600480803573ffffffffffffffffffffffffffffffffffffffff169060200190919050506101d5565b6040518082815260200191505060405180910390f35b60016020528060005260406000206000915054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b60036020528060005260406000206000915054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b600260205280600052604060002060009150905054815600a165627a7a723058204420c2aecbb673800d768a24497ad519fc10bee6114aafd07b75d2eec82feb520029",
+  "sourceMap": "26:2356:1:-;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "26:2356:1:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;368:53;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;486;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;427;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;368;;;;;;;;;;;;;;;;;;;;;;:::o;486:::-;;;;;;;;;;;;;;;;;;;;;;:::o;427:::-;;;;;;;;;;;;;;;;;:::o",
+  "source": "pragma solidity ^0.4.18;\n\ncontract TittyBase {\n\n    event Transfer(address indexed from, address indexed to);\n    event Creation(address indexed from, uint256 tittyId);\n\n    struct Titty {\n\n        uint32 id;\n        string name;\n        string gender;\n        uint256 price;\n        bool forSale;\n        uint256 likes;\n\n    }\n\n    //Storage\n    Titty[] Titties;\n    mapping (uint256 => address) public tittyIndexToOwner;\n    mapping (address => uint256) public ownerTittiesCount;\n    mapping (uint256 => address) public tittyApproveIndex;\n\n    function _transfer(address _from, address _to, uint256 _tittyId) internal {\n\n        ownerTittiesCount[_to]++;\n\n        tittyIndexToOwner[_tittyId] = _to;\n        if (_from != address(0)) {\n            ownerTittiesCount[_from]--;\n            delete tittyApproveIndex[_tittyId];\n        }\n\n        Transfer(_from, _to);\n\n    }\n\n    function _changeTittyPrice (uint256 _newPrice, uint256 _tittyId) internal {\n\n        require(tittyIndexToOwner[_tittyId] == msg.sender);\n        Titty storage _titty = Titties[_tittyId];\n        _titty.price = _newPrice;\n\n        Titties[_tittyId] = _titty;\n    }\n\n    function _setTittyForSale (bool _forSale, uint256 _tittyId) internal {\n\n        require(tittyIndexToOwner[_tittyId] == msg.sender);\n        Titty storage _titty = Titties[_tittyId];\n        _titty.forSale = _forSale;\n\n        Titties[_tittyId] = _titty;\n    }\n\n    function _changeName (string _name, uint256 _tittyId) internal {\n\n        require(tittyIndexToOwner[_tittyId] == msg.sender);\n        Titty storage _titty = Titties[_tittyId];\n        _titty.name = _name;\n\n        Titties[_tittyId] = _titty;\n    }\n\n    function _likeTitty (uint256 _tittyId) internal {\n        \n        Titty storage _titty = Titties[_tittyId];\n        _titty.likes++;\n\n        Titties[_tittyId] = _titty;\n    }\n\n    function createTitty (uint32 _id, string _gender, uint256 _price, address _owner, string _name) internal returns (uint) {\n\n        Titty memory _titty = Titty({\n            id: _id,\n            name: _name,\n            gender: _gender,\n            price: _price,\n            forSale: false,\n            likes: 0\n        });\n\n        uint256 newTittyId = Titties.push(_titty) - 1;\n\n        Creation(\n            _owner,\n            newTittyId\n        );\n\n        _transfer(0, _owner, newTittyId);\n        return newTittyId;\n    }\n\n    \n\n}",
+  "sourcePath": "/Users/rogerssampaio/Sites/cryptotitties/contracts/TittyBase.sol",
+  "ast": {
+    "attributes": {
+      "absolutePath": "/Users/rogerssampaio/Sites/cryptotitties/contracts/TittyBase.sol",
+      "exportedSymbols": {
+        "TittyBase": [
+          328
+        ]
+      }
+    },
+    "children": [
+      {
+        "attributes": {
+          "literals": [
+            "solidity",
+            "^",
+            "0.4",
+            ".18"
+          ]
+        },
+        "id": 67,
+        "name": "PragmaDirective",
+        "src": "0:24:1"
+      },
+      {
+        "attributes": {
+          "baseContracts": [
+            null
+          ],
+          "contractDependencies": [
+            null
+          ],
+          "contractKind": "contract",
+          "documentation": null,
+          "fullyImplemented": true,
+          "linearizedBaseContracts": [
+            328
+          ],
+          "name": "TittyBase",
+          "scope": 329
+        },
+        "children": [
+          {
+            "attributes": {
+              "anonymous": false,
+              "name": "Transfer"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": true,
+                      "name": "from",
+                      "scope": 73,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "type": "address"
+                        },
+                        "id": 68,
+                        "name": "ElementaryTypeName",
+                        "src": "67:7:1"
+                      }
+                    ],
+                    "id": 69,
+                    "name": "VariableDeclaration",
+                    "src": "67:20:1"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": true,
+                      "name": "to",
+                      "scope": 73,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "type": "address"
+                        },
+                        "id": 70,
+                        "name": "ElementaryTypeName",
+                        "src": "89:7:1"
+                      }
+                    ],
+                    "id": 71,
+                    "name": "VariableDeclaration",
+                    "src": "89:18:1"
+                  }
+                ],
+                "id": 72,
+                "name": "ParameterList",
+                "src": "66:42:1"
+              }
+            ],
+            "id": 73,
+            "name": "EventDefinition",
+            "src": "52:57:1"
+          },
+          {
+            "attributes": {
+              "anonymous": false,
+              "name": "Creation"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": true,
+                      "name": "from",
+                      "scope": 79,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "type": "address"
+                        },
+                        "id": 74,
+                        "name": "ElementaryTypeName",
+                        "src": "129:7:1"
+                      }
+                    ],
+                    "id": 75,
+                    "name": "VariableDeclaration",
+                    "src": "129:20:1"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": false,
+                      "name": "tittyId",
+                      "scope": 79,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 76,
+                        "name": "ElementaryTypeName",
+                        "src": "151:7:1"
+                      }
+                    ],
+                    "id": 77,
+                    "name": "VariableDeclaration",
+                    "src": "151:15:1"
+                  }
+                ],
+                "id": 78,
+                "name": "ParameterList",
+                "src": "128:39:1"
+              }
+            ],
+            "id": 79,
+            "name": "EventDefinition",
+            "src": "114:54:1"
+          },
+          {
+            "attributes": {
+              "canonicalName": "TittyBase.Titty",
+              "name": "Titty",
+              "scope": 328,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "constant": false,
+                  "name": "id",
+                  "scope": 92,
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "type": "uint32",
+                  "value": null,
+                  "visibility": "internal"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "name": "uint32",
+                      "type": "uint32"
+                    },
+                    "id": 80,
+                    "name": "ElementaryTypeName",
+                    "src": "198:6:1"
+                  }
+                ],
+                "id": 81,
+                "name": "VariableDeclaration",
+                "src": "198:9:1"
+              },
+              {
+                "attributes": {
+                  "constant": false,
+                  "name": "name",
+                  "scope": 92,
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "type": "string storage pointer",
+                  "value": null,
+                  "visibility": "internal"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "name": "string",
+                      "type": "string storage pointer"
+                    },
+                    "id": 82,
+                    "name": "ElementaryTypeName",
+                    "src": "217:6:1"
+                  }
+                ],
+                "id": 83,
+                "name": "VariableDeclaration",
+                "src": "217:11:1"
+              },
+              {
+                "attributes": {
+                  "constant": false,
+                  "name": "gender",
+                  "scope": 92,
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "type": "string storage pointer",
+                  "value": null,
+                  "visibility": "internal"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "name": "string",
+                      "type": "string storage pointer"
+                    },
+                    "id": 84,
+                    "name": "ElementaryTypeName",
+                    "src": "238:6:1"
+                  }
+                ],
+                "id": 85,
+                "name": "VariableDeclaration",
+                "src": "238:13:1"
+              },
+              {
+                "attributes": {
+                  "constant": false,
+                  "name": "price",
+                  "scope": 92,
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "type": "uint256",
+                  "value": null,
+                  "visibility": "internal"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "name": "uint256",
+                      "type": "uint256"
+                    },
+                    "id": 86,
+                    "name": "ElementaryTypeName",
+                    "src": "261:7:1"
+                  }
+                ],
+                "id": 87,
+                "name": "VariableDeclaration",
+                "src": "261:13:1"
+              },
+              {
+                "attributes": {
+                  "constant": false,
+                  "name": "forSale",
+                  "scope": 92,
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "type": "bool",
+                  "value": null,
+                  "visibility": "internal"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "name": "bool",
+                      "type": "bool"
+                    },
+                    "id": 88,
+                    "name": "ElementaryTypeName",
+                    "src": "284:4:1"
+                  }
+                ],
+                "id": 89,
+                "name": "VariableDeclaration",
+                "src": "284:12:1"
+              },
+              {
+                "attributes": {
+                  "constant": false,
+                  "name": "likes",
+                  "scope": 92,
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "type": "uint256",
+                  "value": null,
+                  "visibility": "internal"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "name": "uint256",
+                      "type": "uint256"
+                    },
+                    "id": 90,
+                    "name": "ElementaryTypeName",
+                    "src": "306:7:1"
+                  }
+                ],
+                "id": 91,
+                "name": "VariableDeclaration",
+                "src": "306:13:1"
+              }
+            ],
+            "id": 92,
+            "name": "StructDefinition",
+            "src": "174:153:1"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "name": "Titties",
+              "scope": 328,
+              "stateVariable": true,
+              "storageLocation": "default",
+              "type": "struct TittyBase.Titty storage ref[] storage ref",
+              "value": null,
+              "visibility": "internal"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "length": null,
+                  "type": "struct TittyBase.Titty storage ref[] storage pointer"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "contractScope": null,
+                      "name": "Titty",
+                      "referencedDeclaration": 92,
+                      "type": "struct TittyBase.Titty storage pointer"
+                    },
+                    "id": 93,
+                    "name": "UserDefinedTypeName",
+                    "src": "347:5:1"
+                  }
+                ],
+                "id": 94,
+                "name": "ArrayTypeName",
+                "src": "347:7:1"
+              }
+            ],
+            "id": 95,
+            "name": "VariableDeclaration",
+            "src": "347:15:1"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "name": "tittyIndexToOwner",
+              "scope": 328,
+              "stateVariable": true,
+              "storageLocation": "default",
+              "type": "mapping(uint256 => address)",
+              "value": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "type": "mapping(uint256 => address)"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "name": "uint256",
+                      "type": "uint256"
+                    },
+                    "id": 96,
+                    "name": "ElementaryTypeName",
+                    "src": "377:7:1"
+                  },
+                  {
+                    "attributes": {
+                      "name": "address",
+                      "type": "address"
+                    },
+                    "id": 97,
+                    "name": "ElementaryTypeName",
+                    "src": "388:7:1"
+                  }
+                ],
+                "id": 98,
+                "name": "Mapping",
+                "src": "368:28:1"
+              }
+            ],
+            "id": 99,
+            "name": "VariableDeclaration",
+            "src": "368:53:1"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "name": "ownerTittiesCount",
+              "scope": 328,
+              "stateVariable": true,
+              "storageLocation": "default",
+              "type": "mapping(address => uint256)",
+              "value": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "type": "mapping(address => uint256)"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "name": "address",
+                      "type": "address"
+                    },
+                    "id": 100,
+                    "name": "ElementaryTypeName",
+                    "src": "436:7:1"
+                  },
+                  {
+                    "attributes": {
+                      "name": "uint256",
+                      "type": "uint256"
+                    },
+                    "id": 101,
+                    "name": "ElementaryTypeName",
+                    "src": "447:7:1"
+                  }
+                ],
+                "id": 102,
+                "name": "Mapping",
+                "src": "427:28:1"
+              }
+            ],
+            "id": 103,
+            "name": "VariableDeclaration",
+            "src": "427:53:1"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "name": "tittyApproveIndex",
+              "scope": 328,
+              "stateVariable": true,
+              "storageLocation": "default",
+              "type": "mapping(uint256 => address)",
+              "value": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "type": "mapping(uint256 => address)"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "name": "uint256",
+                      "type": "uint256"
+                    },
+                    "id": 104,
+                    "name": "ElementaryTypeName",
+                    "src": "495:7:1"
+                  },
+                  {
+                    "attributes": {
+                      "name": "address",
+                      "type": "address"
+                    },
+                    "id": 105,
+                    "name": "ElementaryTypeName",
+                    "src": "506:7:1"
+                  }
+                ],
+                "id": 106,
+                "name": "Mapping",
+                "src": "486:28:1"
+              }
+            ],
+            "id": 107,
+            "name": "VariableDeclaration",
+            "src": "486:53:1"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "implemented": true,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "_transfer",
+              "payable": false,
+              "scope": 328,
+              "stateMutability": "nonpayable",
+              "superFunction": null,
+              "visibility": "internal"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_from",
+                      "scope": 150,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "type": "address"
+                        },
+                        "id": 108,
+                        "name": "ElementaryTypeName",
+                        "src": "565:7:1"
+                      }
+                    ],
+                    "id": 109,
+                    "name": "VariableDeclaration",
+                    "src": "565:13:1"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_to",
+                      "scope": 150,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "type": "address"
+                        },
+                        "id": 110,
+                        "name": "ElementaryTypeName",
+                        "src": "580:7:1"
+                      }
+                    ],
+                    "id": 111,
+                    "name": "VariableDeclaration",
+                    "src": "580:11:1"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_tittyId",
+                      "scope": 150,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 112,
+                        "name": "ElementaryTypeName",
+                        "src": "593:7:1"
+                      }
+                    ],
+                    "id": 113,
+                    "name": "VariableDeclaration",
+                    "src": "593:16:1"
+                  }
+                ],
+                "id": 114,
+                "name": "ParameterList",
+                "src": "564:46:1"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 115,
+                "name": "ParameterList",
+                "src": "620:0:1"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "++",
+                          "prefix": false,
+                          "type": "uint256"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": true,
+                              "type": "uint256"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 103,
+                                  "type": "mapping(address => uint256)",
+                                  "value": "ownerTittiesCount"
+                                },
+                                "id": 116,
+                                "name": "Identifier",
+                                "src": "631:17:1"
+                              },
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 111,
+                                  "type": "address",
+                                  "value": "_to"
+                                },
+                                "id": 117,
+                                "name": "Identifier",
+                                "src": "649:3:1"
+                              }
+                            ],
+                            "id": 118,
+                            "name": "IndexAccess",
+                            "src": "631:22:1"
+                          }
+                        ],
+                        "id": 119,
+                        "name": "UnaryOperation",
+                        "src": "631:24:1"
+                      }
+                    ],
+                    "id": 120,
+                    "name": "ExpressionStatement",
+                    "src": "631:24:1"
+                  },
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "=",
+                          "type": "address"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": true,
+                              "type": "address"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 99,
+                                  "type": "mapping(uint256 => address)",
+                                  "value": "tittyIndexToOwner"
+                                },
+                                "id": 121,
+                                "name": "Identifier",
+                                "src": "666:17:1"
+                              },
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 113,
+                                  "type": "uint256",
+                                  "value": "_tittyId"
+                                },
+                                "id": 122,
+                                "name": "Identifier",
+                                "src": "684:8:1"
+                              }
+                            ],
+                            "id": 123,
+                            "name": "IndexAccess",
+                            "src": "666:27:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 111,
+                              "type": "address",
+                              "value": "_to"
+                            },
+                            "id": 124,
+                            "name": "Identifier",
+                            "src": "696:3:1"
+                          }
+                        ],
+                        "id": 125,
+                        "name": "Assignment",
+                        "src": "666:33:1"
+                      }
+                    ],
+                    "id": 126,
+                    "name": "ExpressionStatement",
+                    "src": "666:33:1"
+                  },
+                  {
+                    "attributes": {
+                      "falseBody": null
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "commonType": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          },
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "!=",
+                          "type": "bool"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 109,
+                              "type": "address",
+                              "value": "_from"
+                            },
+                            "id": 127,
+                            "name": "Identifier",
+                            "src": "713:5:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "isStructConstructorCall": false,
+                              "lValueRequested": false,
+                              "names": [
+                                null
+                              ],
+                              "type": "address",
+                              "type_conversion": true
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": [
+                                    {
+                                      "typeIdentifier": "t_rational_0_by_1",
+                                      "typeString": "int_const 0"
+                                    }
+                                  ],
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": true,
+                                  "lValueRequested": false,
+                                  "type": "type(address)",
+                                  "value": "address"
+                                },
+                                "id": 128,
+                                "name": "ElementaryTypeNameExpression",
+                                "src": "722:7:1"
+                              },
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "hexvalue": "30",
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": true,
+                                  "lValueRequested": false,
+                                  "subdenomination": null,
+                                  "token": "number",
+                                  "type": "int_const 0",
+                                  "value": "0"
+                                },
+                                "id": 129,
+                                "name": "Literal",
+                                "src": "730:1:1"
+                              }
+                            ],
+                            "id": 130,
+                            "name": "FunctionCall",
+                            "src": "722:10:1"
+                          }
+                        ],
+                        "id": 131,
+                        "name": "BinaryOperation",
+                        "src": "713:19:1"
+                      },
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "operator": "--",
+                                  "prefix": false,
+                                  "type": "uint256"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "isConstant": false,
+                                      "isLValue": true,
+                                      "isPure": false,
+                                      "lValueRequested": true,
+                                      "type": "uint256"
+                                    },
+                                    "children": [
+                                      {
+                                        "attributes": {
+                                          "argumentTypes": null,
+                                          "overloadedDeclarations": [
+                                            null
+                                          ],
+                                          "referencedDeclaration": 103,
+                                          "type": "mapping(address => uint256)",
+                                          "value": "ownerTittiesCount"
+                                        },
+                                        "id": 132,
+                                        "name": "Identifier",
+                                        "src": "748:17:1"
+                                      },
+                                      {
+                                        "attributes": {
+                                          "argumentTypes": null,
+                                          "overloadedDeclarations": [
+                                            null
+                                          ],
+                                          "referencedDeclaration": 109,
+                                          "type": "address",
+                                          "value": "_from"
+                                        },
+                                        "id": 133,
+                                        "name": "Identifier",
+                                        "src": "766:5:1"
+                                      }
+                                    ],
+                                    "id": 134,
+                                    "name": "IndexAccess",
+                                    "src": "748:24:1"
+                                  }
+                                ],
+                                "id": 135,
+                                "name": "UnaryOperation",
+                                "src": "748:26:1"
+                              }
+                            ],
+                            "id": 136,
+                            "name": "ExpressionStatement",
+                            "src": "748:26:1"
+                          },
+                          {
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "operator": "delete",
+                                  "prefix": true,
+                                  "type": "tuple()"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "isConstant": false,
+                                      "isLValue": true,
+                                      "isPure": false,
+                                      "lValueRequested": true,
+                                      "type": "address"
+                                    },
+                                    "children": [
+                                      {
+                                        "attributes": {
+                                          "argumentTypes": null,
+                                          "overloadedDeclarations": [
+                                            null
+                                          ],
+                                          "referencedDeclaration": 107,
+                                          "type": "mapping(uint256 => address)",
+                                          "value": "tittyApproveIndex"
+                                        },
+                                        "id": 137,
+                                        "name": "Identifier",
+                                        "src": "795:17:1"
+                                      },
+                                      {
+                                        "attributes": {
+                                          "argumentTypes": null,
+                                          "overloadedDeclarations": [
+                                            null
+                                          ],
+                                          "referencedDeclaration": 113,
+                                          "type": "uint256",
+                                          "value": "_tittyId"
+                                        },
+                                        "id": 138,
+                                        "name": "Identifier",
+                                        "src": "813:8:1"
+                                      }
+                                    ],
+                                    "id": 139,
+                                    "name": "IndexAccess",
+                                    "src": "795:27:1"
+                                  }
+                                ],
+                                "id": 140,
+                                "name": "UnaryOperation",
+                                "src": "788:34:1"
+                              }
+                            ],
+                            "id": 141,
+                            "name": "ExpressionStatement",
+                            "src": "788:34:1"
+                          }
+                        ],
+                        "id": 142,
+                        "name": "Block",
+                        "src": "734:99:1"
+                      }
+                    ],
+                    "id": 143,
+                    "name": "IfStatement",
+                    "src": "709:124:1"
+                  },
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "isStructConstructorCall": false,
+                          "lValueRequested": false,
+                          "names": [
+                            null
+                          ],
+                          "type": "tuple()",
+                          "type_conversion": false
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_address",
+                                  "typeString": "address"
+                                },
+                                {
+                                  "typeIdentifier": "t_address",
+                                  "typeString": "address"
+                                }
+                              ],
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 73,
+                              "type": "function (address,address)",
+                              "value": "Transfer"
+                            },
+                            "id": 144,
+                            "name": "Identifier",
+                            "src": "843:8:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 109,
+                              "type": "address",
+                              "value": "_from"
+                            },
+                            "id": 145,
+                            "name": "Identifier",
+                            "src": "852:5:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 111,
+                              "type": "address",
+                              "value": "_to"
+                            },
+                            "id": 146,
+                            "name": "Identifier",
+                            "src": "859:3:1"
+                          }
+                        ],
+                        "id": 147,
+                        "name": "FunctionCall",
+                        "src": "843:20:1"
+                      }
+                    ],
+                    "id": 148,
+                    "name": "ExpressionStatement",
+                    "src": "843:20:1"
+                  }
+                ],
+                "id": 149,
+                "name": "Block",
+                "src": "620:251:1"
+              }
+            ],
+            "id": 150,
+            "name": "FunctionDefinition",
+            "src": "546:325:1"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "implemented": true,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "_changeTittyPrice",
+              "payable": false,
+              "scope": 328,
+              "stateMutability": "nonpayable",
+              "superFunction": null,
+              "visibility": "internal"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_newPrice",
+                      "scope": 185,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 151,
+                        "name": "ElementaryTypeName",
+                        "src": "905:7:1"
+                      }
+                    ],
+                    "id": 152,
+                    "name": "VariableDeclaration",
+                    "src": "905:17:1"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_tittyId",
+                      "scope": 185,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 153,
+                        "name": "ElementaryTypeName",
+                        "src": "924:7:1"
+                      }
+                    ],
+                    "id": 154,
+                    "name": "VariableDeclaration",
+                    "src": "924:16:1"
+                  }
+                ],
+                "id": 155,
+                "name": "ParameterList",
+                "src": "904:37:1"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 156,
+                "name": "ParameterList",
+                "src": "951:0:1"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "assignments": [
+                        158
+                      ]
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "constant": false,
+                          "name": "_titty",
+                          "scope": 176,
+                          "stateVariable": false,
+                          "storageLocation": "storage",
+                          "type": "tuple()",
+                          "value": null,
+                          "visibility": "internal",
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "isStructConstructorCall": false,
+                          "lValueRequested": false,
+                          "names": [
+                            null
+                          ],
+                          "type_conversion": false
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "contractScope": null,
+                              "name": "Titty",
+                              "referencedDeclaration": 853,
+                              "type": "function (bool) pure",
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_bool",
+                                  "typeString": "bool"
+                                }
+                              ],
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "value": "require"
+                            },
+                            "id": 157,
+                            "name": "Identifier",
+                            "src": "962:7:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "commonType": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              },
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "operator": "==",
+                              "type": "bool"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "isConstant": false,
+                                  "isLValue": true,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "type": "address"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 99,
+                                      "type": "mapping(uint256 => address)",
+                                      "value": "tittyIndexToOwner"
+                                    },
+                                    "id": 158,
+                                    "name": "Identifier",
+                                    "src": "970:17:1"
+                                  },
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 154,
+                                      "type": "uint256",
+                                      "value": "_tittyId"
+                                    },
+                                    "id": 159,
+                                    "name": "Identifier",
+                                    "src": "988:8:1"
+                                  }
+                                ],
+                                "id": 160,
+                                "name": "IndexAccess",
+                                "src": "970:27:1"
+                              },
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "member_name": "sender",
+                                  "referencedDeclaration": null,
+                                  "type": "address"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 850,
+                                      "type": "msg",
+                                      "value": "msg"
+                                    },
+                                    "id": 161,
+                                    "name": "Identifier",
+                                    "src": "1001:3:1"
+                                  }
+                                ],
+                                "id": 162,
+                                "name": "MemberAccess",
+                                "src": "1001:10:1"
+                              }
+                            ],
+                            "id": 163,
+                            "name": "BinaryOperation",
+                            "src": "970:41:1"
+                          }
+                        ],
+                        "id": 164,
+                        "name": "FunctionCall",
+                        "src": "962:50:1"
+                      },
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": true,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "type": "struct TittyBase.Titty storage ref"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 95,
+                              "type": "struct TittyBase.Titty storage ref[] storage ref",
+                              "value": "Titties"
+                            },
+                            "id": 159,
+                            "name": "Identifier",
+                            "src": "985:7:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 154,
+                              "type": "uint256",
+                              "value": "_tittyId"
+                            },
+                            "id": 160,
+                            "name": "Identifier",
+                            "src": "993:8:1"
+                          }
+                        ],
+                        "id": 161,
+                        "name": "IndexAccess",
+                        "src": "985:17:1"
+                      }
+                    ],
+                    "id": 165,
+                    "name": "ExpressionStatement",
+                    "src": "962:50:1"
+                  },
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "=",
+                          "type": "struct TittyBase.Titty storage pointer",
+                          "constant": false,
+                          "name": "_titty",
+                          "scope": 185,
+                          "stateVariable": false,
+                          "storageLocation": "storage",
+                          "value": null,
+                          "visibility": "internal"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": true,
+                              "member_name": "price",
+                              "referencedDeclaration": 92,
+                              "type": "struct TittyBase.Titty storage pointer",
+                              "contractScope": null,
+                              "name": "Titty"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 158,
+                                  "type": "struct TittyBase.Titty storage pointer",
+                                  "value": "_titty"
+                                },
+                                "id": 163,
+                                "name": "Identifier",
+                                "src": "1012:6:1"
+                              }
+                            ],
+                            "id": 166,
+                            "name": "UserDefinedTypeName",
+                            "src": "1022:5:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 152,
+                              "type": "uint256",
+                              "value": "_newPrice"
+                            },
+                            "id": 166,
+                            "name": "Identifier",
+                            "src": "1027:9:1"
+                          }
+                        ],
+                        "id": 167,
+                        "name": "VariableDeclaration",
+                        "src": "1022:20:1"
+                      },
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": true,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "type": "struct TittyBase.Titty storage ref"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 95,
+                              "type": "struct TittyBase.Titty storage ref[] storage ref",
+                              "value": "Titties"
+                            },
+                            "id": 168,
+                            "name": "Identifier",
+                            "src": "1045:7:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 154,
+                              "type": "uint256",
+                              "value": "_tittyId"
+                            },
+                            "id": 169,
+                            "name": "Identifier",
+                            "src": "1053:8:1"
+                          }
+                        ],
+                        "id": 170,
+                        "name": "IndexAccess",
+                        "src": "1045:17:1"
+                      }
+                    ],
+                    "id": 171,
+                    "name": "VariableDeclarationStatement",
+                    "src": "1022:40:1",
+                    "attributes": {
+                      "assignments": [
+                        167
+                      ]
+                    }
+                  },
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "=",
+                          "type": "uint256"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": true,
+                              "type": "uint256",
+                              "member_name": "price",
+                              "referencedDeclaration": 87
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 167,
+                                  "type": "struct TittyBase.Titty storage pointer",
+                                  "value": "_titty"
+                                },
+                                "id": 172,
+                                "name": "Identifier",
+                                "src": "1072:6:1"
+                              },
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 154,
+                                  "type": "uint256",
+                                  "value": "_tittyId"
+                                },
+                                "id": 170,
+                                "name": "Identifier",
+                                "src": "1055:8:1"
+                              }
+                            ],
+                            "id": 174,
+                            "name": "MemberAccess",
+                            "src": "1072:12:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 152,
+                              "type": "uint256",
+                              "value": "_newPrice"
+                            },
+                            "id": 175,
+                            "name": "Identifier",
+                            "src": "1087:9:1"
+                          }
+                        ],
+                        "id": 176,
+                        "name": "Assignment",
+                        "src": "1072:24:1"
+                      }
+                    ],
+                    "id": 177,
+                    "name": "ExpressionStatement",
+                    "src": "1072:24:1"
+                  },
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "=",
+                          "type": "struct TittyBase.Titty storage ref"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": true,
+                              "type": "struct TittyBase.Titty storage ref"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 95,
+                                  "type": "struct TittyBase.Titty storage ref[] storage ref",
+                                  "value": "Titties"
+                                },
+                                "id": 178,
+                                "name": "Identifier",
+                                "src": "1107:7:1"
+                              },
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 154,
+                                  "type": "uint256",
+                                  "value": "_tittyId"
+                                },
+                                "id": 179,
+                                "name": "Identifier",
+                                "src": "1115:8:1"
+                              }
+                            ],
+                            "id": 180,
+                            "name": "IndexAccess",
+                            "src": "1107:17:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 167,
+                              "type": "struct TittyBase.Titty storage pointer",
+                              "value": "_titty"
+                            },
+                            "id": 181,
+                            "name": "Identifier",
+                            "src": "1127:6:1"
+                          }
+                        ],
+                        "id": 182,
+                        "name": "Assignment",
+                        "src": "1107:26:1"
+                      }
+                    ],
+                    "id": 183,
+                    "name": "ExpressionStatement",
+                    "src": "1107:26:1"
+                  }
+                ],
+                "id": 184,
+                "name": "Block",
+                "src": "951:189:1"
+              }
+            ],
+            "id": 185,
+            "name": "FunctionDefinition",
+            "src": "877:263:1"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "implemented": true,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "_setTittyForSale",
+              "payable": false,
+              "scope": 328,
+              "stateMutability": "nonpayable",
+              "superFunction": null,
+              "visibility": "internal"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_forSale",
+                      "scope": 220,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "bool",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "bool",
+                          "type": "bool"
+                        },
+                        "id": 186,
+                        "name": "ElementaryTypeName",
+                        "src": "1173:4:1"
+                      }
+                    ],
+                    "id": 187,
+                    "name": "VariableDeclaration",
+                    "src": "1173:13:1"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_tittyId",
+                      "scope": 220,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 188,
+                        "name": "ElementaryTypeName",
+                        "src": "1188:7:1"
+                      }
+                    ],
+                    "id": 189,
+                    "name": "VariableDeclaration",
+                    "src": "1188:16:1"
+                  }
+                ],
+                "id": 190,
+                "name": "ParameterList",
+                "src": "1172:33:1"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 191,
+                "name": "ParameterList",
+                "src": "1215:0:1"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "assignments": [
+                        184
+                      ]
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "constant": false,
+                          "name": "_titty",
+                          "scope": 202,
+                          "stateVariable": false,
+                          "storageLocation": "storage",
+                          "type": "tuple()",
+                          "value": null,
+                          "visibility": "internal",
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "isStructConstructorCall": false,
+                          "lValueRequested": false,
+                          "names": [
+                            null
+                          ],
+                          "type_conversion": false
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "contractScope": null,
+                              "name": "Titty",
+                              "referencedDeclaration": 853,
+                              "type": "function (bool) pure",
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_bool",
+                                  "typeString": "bool"
+                                }
+                              ],
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "value": "require"
+                            },
+                            "id": 192,
+                            "name": "Identifier",
+                            "src": "1226:7:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "commonType": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              },
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "operator": "==",
+                              "type": "bool"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "isConstant": false,
+                                  "isLValue": true,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "type": "address"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 99,
+                                      "type": "mapping(uint256 => address)",
+                                      "value": "tittyIndexToOwner"
+                                    },
+                                    "id": 193,
+                                    "name": "Identifier",
+                                    "src": "1234:17:1"
+                                  },
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 189,
+                                      "type": "uint256",
+                                      "value": "_tittyId"
+                                    },
+                                    "id": 194,
+                                    "name": "Identifier",
+                                    "src": "1252:8:1"
+                                  }
+                                ],
+                                "id": 195,
+                                "name": "IndexAccess",
+                                "src": "1234:27:1"
+                              },
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "member_name": "sender",
+                                  "referencedDeclaration": null,
+                                  "type": "address"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 850,
+                                      "type": "msg",
+                                      "value": "msg"
+                                    },
+                                    "id": 196,
+                                    "name": "Identifier",
+                                    "src": "1265:3:1"
+                                  }
+                                ],
+                                "id": 197,
+                                "name": "MemberAccess",
+                                "src": "1265:10:1"
+                              }
+                            ],
+                            "id": 198,
+                            "name": "BinaryOperation",
+                            "src": "1234:41:1"
+                          }
+                        ],
+                        "id": 199,
+                        "name": "FunctionCall",
+                        "src": "1226:50:1"
+                      },
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": true,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "type": "struct TittyBase.Titty storage ref"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 95,
+                              "type": "struct TittyBase.Titty storage ref[] storage ref",
+                              "value": "Titties"
+                            },
+                            "id": 185,
+                            "name": "Identifier",
+                            "src": "1189:7:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 180,
+                              "type": "uint256",
+                              "value": "_tittyId"
+                            },
+                            "id": 186,
+                            "name": "Identifier",
+                            "src": "1197:8:1"
+                          }
+                        ],
+                        "id": 187,
+                        "name": "IndexAccess",
+                        "src": "1189:17:1"
+                      }
+                    ],
+                    "id": 200,
+                    "name": "ExpressionStatement",
+                    "src": "1226:50:1"
+                  },
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "=",
+                          "type": "struct TittyBase.Titty storage pointer",
+                          "constant": false,
+                          "name": "_titty",
+                          "scope": 220,
+                          "stateVariable": false,
+                          "storageLocation": "storage",
+                          "value": null,
+                          "visibility": "internal"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": true,
+                              "member_name": "forSale",
+                              "referencedDeclaration": 92,
+                              "type": "struct TittyBase.Titty storage pointer",
+                              "contractScope": null,
+                              "name": "Titty"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 184,
+                                  "type": "struct TittyBase.Titty storage pointer",
+                                  "value": "_titty"
+                                },
+                                "id": 189,
+                                "name": "Identifier",
+                                "src": "1216:6:1"
+                              }
+                            ],
+                            "id": 201,
+                            "name": "UserDefinedTypeName",
+                            "src": "1286:5:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 178,
+                              "type": "bool",
+                              "value": "_forSale"
+                            },
+                            "id": 192,
+                            "name": "Identifier",
+                            "src": "1233:8:1"
+                          }
+                        ],
+                        "id": 202,
+                        "name": "VariableDeclaration",
+                        "src": "1286:20:1"
+                      },
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": true,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "type": "struct TittyBase.Titty storage ref"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 95,
+                              "type": "struct TittyBase.Titty storage ref[] storage ref",
+                              "value": "Titties"
+                            },
+                            "id": 203,
+                            "name": "Identifier",
+                            "src": "1309:7:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 189,
+                              "type": "uint256",
+                              "value": "_tittyId"
+                            },
+                            "id": 204,
+                            "name": "Identifier",
+                            "src": "1317:8:1"
+                          }
+                        ],
+                        "id": 205,
+                        "name": "IndexAccess",
+                        "src": "1309:17:1"
+                      }
+                    ],
+                    "id": 206,
+                    "name": "VariableDeclarationStatement",
+                    "src": "1286:40:1",
+                    "attributes": {
+                      "assignments": [
+                        202
+                      ]
+                    }
+                  },
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "=",
+                          "type": "bool"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": true,
+                              "type": "bool",
+                              "member_name": "forSale",
+                              "referencedDeclaration": 89
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 202,
+                                  "type": "struct TittyBase.Titty storage pointer",
+                                  "value": "_titty"
+                                },
+                                "id": 207,
+                                "name": "Identifier",
+                                "src": "1336:6:1"
+                              },
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 180,
+                                  "type": "uint256",
+                                  "value": "_tittyId"
+                                },
+                                "id": 196,
+                                "name": "Identifier",
+                                "src": "1260:8:1"
+                              }
+                            ],
+                            "id": 209,
+                            "name": "MemberAccess",
+                            "src": "1336:14:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 187,
+                              "type": "bool",
+                              "value": "_forSale"
+                            },
+                            "id": 210,
+                            "name": "Identifier",
+                            "src": "1353:8:1"
+                          }
+                        ],
+                        "id": 211,
+                        "name": "Assignment",
+                        "src": "1336:25:1"
+                      }
+                    ],
+                    "id": 212,
+                    "name": "ExpressionStatement",
+                    "src": "1336:25:1"
+                  },
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "=",
+                          "type": "struct TittyBase.Titty storage ref"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": true,
+                              "type": "struct TittyBase.Titty storage ref"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 95,
+                                  "type": "struct TittyBase.Titty storage ref[] storage ref",
+                                  "value": "Titties"
+                                },
+                                "id": 213,
+                                "name": "Identifier",
+                                "src": "1372:7:1"
+                              },
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 189,
+                                  "type": "uint256",
+                                  "value": "_tittyId"
+                                },
+                                "id": 214,
+                                "name": "Identifier",
+                                "src": "1380:8:1"
+                              }
+                            ],
+                            "id": 215,
+                            "name": "IndexAccess",
+                            "src": "1372:17:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 202,
+                              "type": "struct TittyBase.Titty storage pointer",
+                              "value": "_titty"
+                            },
+                            "id": 216,
+                            "name": "Identifier",
+                            "src": "1392:6:1"
+                          }
+                        ],
+                        "id": 217,
+                        "name": "Assignment",
+                        "src": "1372:26:1"
+                      }
+                    ],
+                    "id": 218,
+                    "name": "ExpressionStatement",
+                    "src": "1372:26:1"
+                  }
+                ],
+                "id": 219,
+                "name": "Block",
+                "src": "1215:190:1"
+              }
+            ],
+            "id": 220,
+            "name": "FunctionDefinition",
+            "src": "1146:259:1"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "implemented": true,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "_changeName",
+              "payable": false,
+              "scope": 328,
+              "stateMutability": "nonpayable",
+              "superFunction": null,
+              "visibility": "internal"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_name",
+                      "scope": 255,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "string memory",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "string",
+                          "type": "string storage pointer"
+                        },
+                        "id": 221,
+                        "name": "ElementaryTypeName",
+                        "src": "1433:6:1"
+                      }
+                    ],
+                    "id": 222,
+                    "name": "VariableDeclaration",
+                    "src": "1433:12:1"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_tittyId",
+                      "scope": 255,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 223,
+                        "name": "ElementaryTypeName",
+                        "src": "1447:7:1"
+                      }
+                    ],
+                    "id": 224,
+                    "name": "VariableDeclaration",
+                    "src": "1447:16:1"
+                  }
+                ],
+                "id": 225,
+                "name": "ParameterList",
+                "src": "1432:32:1"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 226,
+                "name": "ParameterList",
+                "src": "1474:0:1"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "assignments": [
+                        210
+                      ]
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "constant": false,
+                          "name": "_titty",
+                          "scope": 228,
+                          "stateVariable": false,
+                          "storageLocation": "storage",
+                          "type": "tuple()",
+                          "value": null,
+                          "visibility": "internal",
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "isStructConstructorCall": false,
+                          "lValueRequested": false,
+                          "names": [
+                            null
+                          ],
+                          "type_conversion": false
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "contractScope": null,
+                              "name": "Titty",
+                              "referencedDeclaration": 853,
+                              "type": "function (bool) pure",
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_bool",
+                                  "typeString": "bool"
+                                }
+                              ],
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "value": "require"
+                            },
+                            "id": 227,
+                            "name": "Identifier",
+                            "src": "1485:7:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "commonType": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              },
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "operator": "==",
+                              "type": "bool"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "isConstant": false,
+                                  "isLValue": true,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "type": "address"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 99,
+                                      "type": "mapping(uint256 => address)",
+                                      "value": "tittyIndexToOwner"
+                                    },
+                                    "id": 228,
+                                    "name": "Identifier",
+                                    "src": "1493:17:1"
+                                  },
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 224,
+                                      "type": "uint256",
+                                      "value": "_tittyId"
+                                    },
+                                    "id": 229,
+                                    "name": "Identifier",
+                                    "src": "1511:8:1"
+                                  }
+                                ],
+                                "id": 230,
+                                "name": "IndexAccess",
+                                "src": "1493:27:1"
+                              },
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "member_name": "sender",
+                                  "referencedDeclaration": null,
+                                  "type": "address"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 850,
+                                      "type": "msg",
+                                      "value": "msg"
+                                    },
+                                    "id": 231,
+                                    "name": "Identifier",
+                                    "src": "1524:3:1"
+                                  }
+                                ],
+                                "id": 232,
+                                "name": "MemberAccess",
+                                "src": "1524:10:1"
+                              }
+                            ],
+                            "id": 233,
+                            "name": "BinaryOperation",
+                            "src": "1493:41:1"
+                          }
+                        ],
+                        "id": 234,
+                        "name": "FunctionCall",
+                        "src": "1485:50:1"
+                      },
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": true,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "type": "struct TittyBase.Titty storage ref"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 95,
+                              "type": "struct TittyBase.Titty storage ref[] storage ref",
+                              "value": "Titties"
+                            },
+                            "id": 211,
+                            "name": "Identifier",
+                            "src": "1388:7:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 206,
+                              "type": "uint256",
+                              "value": "_tittyId"
+                            },
+                            "id": 212,
+                            "name": "Identifier",
+                            "src": "1396:8:1"
+                          }
+                        ],
+                        "id": 213,
+                        "name": "IndexAccess",
+                        "src": "1388:17:1"
+                      }
+                    ],
+                    "id": 235,
+                    "name": "ExpressionStatement",
+                    "src": "1485:50:1"
+                  },
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "=",
+                          "type": "struct TittyBase.Titty storage pointer",
+                          "constant": false,
+                          "name": "_titty",
+                          "scope": 255,
+                          "stateVariable": false,
+                          "storageLocation": "storage",
+                          "value": null,
+                          "visibility": "internal"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": true,
+                              "member_name": "name",
+                              "referencedDeclaration": 92,
+                              "type": "struct TittyBase.Titty storage pointer",
+                              "contractScope": null,
+                              "name": "Titty"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 210,
+                                  "type": "struct TittyBase.Titty storage pointer",
+                                  "value": "_titty"
+                                },
+                                "id": 215,
+                                "name": "Identifier",
+                                "src": "1415:6:1"
+                              }
+                            ],
+                            "id": 236,
+                            "name": "UserDefinedTypeName",
+                            "src": "1545:5:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 204,
+                              "type": "string memory",
+                              "value": "_name"
+                            },
+                            "id": 218,
+                            "name": "Identifier",
+                            "src": "1429:5:1"
+                          }
+                        ],
+                        "id": 237,
+                        "name": "VariableDeclaration",
+                        "src": "1545:20:1"
+                      },
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": true,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "type": "struct TittyBase.Titty storage ref"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 95,
+                              "type": "struct TittyBase.Titty storage ref[] storage ref",
+                              "value": "Titties"
+                            },
+                            "id": 238,
+                            "name": "Identifier",
+                            "src": "1568:7:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 224,
+                              "type": "uint256",
+                              "value": "_tittyId"
+                            },
+                            "id": 239,
+                            "name": "Identifier",
+                            "src": "1576:8:1"
+                          }
+                        ],
+                        "id": 240,
+                        "name": "IndexAccess",
+                        "src": "1568:17:1"
+                      }
+                    ],
+                    "id": 241,
+                    "name": "VariableDeclarationStatement",
+                    "src": "1545:40:1",
+                    "attributes": {
+                      "assignments": [
+                        237
+                      ]
+                    }
+                  },
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "=",
+                          "type": "string storage ref"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": true,
+                              "type": "string storage ref",
+                              "member_name": "name",
+                              "referencedDeclaration": 83
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 237,
+                                  "type": "struct TittyBase.Titty storage pointer",
+                                  "value": "_titty"
+                                },
+                                "id": 242,
+                                "name": "Identifier",
+                                "src": "1595:6:1"
+                              },
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 206,
+                                  "type": "uint256",
+                                  "value": "_tittyId"
+                                },
+                                "id": 222,
+                                "name": "Identifier",
+                                "src": "1453:8:1"
+                              }
+                            ],
+                            "id": 244,
+                            "name": "MemberAccess",
+                            "src": "1595:11:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 222,
+                              "type": "string memory",
+                              "value": "_name"
+                            },
+                            "id": 245,
+                            "name": "Identifier",
+                            "src": "1609:5:1"
+                          }
+                        ],
+                        "id": 246,
+                        "name": "Assignment",
+                        "src": "1595:19:1"
+                      }
+                    ],
+                    "id": 247,
+                    "name": "ExpressionStatement",
+                    "src": "1595:19:1"
+                  },
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "=",
+                          "type": "struct TittyBase.Titty storage ref"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": true,
+                              "type": "struct TittyBase.Titty storage ref"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 95,
+                                  "type": "struct TittyBase.Titty storage ref[] storage ref",
+                                  "value": "Titties"
+                                },
+                                "id": 248,
+                                "name": "Identifier",
+                                "src": "1625:7:1"
+                              },
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 224,
+                                  "type": "uint256",
+                                  "value": "_tittyId"
+                                },
+                                "id": 249,
+                                "name": "Identifier",
+                                "src": "1633:8:1"
+                              }
+                            ],
+                            "id": 250,
+                            "name": "IndexAccess",
+                            "src": "1625:17:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 237,
+                              "type": "struct TittyBase.Titty storage pointer",
+                              "value": "_titty"
+                            },
+                            "id": 251,
+                            "name": "Identifier",
+                            "src": "1645:6:1"
+                          }
+                        ],
+                        "id": 252,
+                        "name": "Assignment",
+                        "src": "1625:26:1"
+                      }
+                    ],
+                    "id": 253,
+                    "name": "ExpressionStatement",
+                    "src": "1625:26:1"
+                  }
+                ],
+                "id": 254,
+                "name": "Block",
+                "src": "1474:184:1"
+              }
+            ],
+            "id": 255,
+            "name": "FunctionDefinition",
+            "src": "1411:247:1"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "implemented": true,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "_likeTitty",
+              "payable": false,
+              "scope": 328,
+              "stateMutability": "nonpayable",
+              "superFunction": null,
+              "visibility": "internal"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_tittyId",
+                      "scope": 278,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 256,
+                        "name": "ElementaryTypeName",
+                        "src": "1685:7:1"
+                      }
+                    ],
+                    "id": 257,
+                    "name": "VariableDeclaration",
+                    "src": "1685:16:1"
+                  }
+                ],
+                "id": 258,
+                "name": "ParameterList",
+                "src": "1684:18:1"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 259,
+                "name": "ParameterList",
+                "src": "1712:0:1"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "assignments": [
+                        261
+                      ]
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "constant": false,
+                          "name": "_titty",
+                          "scope": 278,
+                          "stateVariable": false,
+                          "storageLocation": "storage",
+                          "type": "struct TittyBase.Titty storage pointer",
+                          "value": null,
+                          "visibility": "internal"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "contractScope": null,
+                              "name": "Titty",
+                              "referencedDeclaration": 92,
+                              "type": "struct TittyBase.Titty storage pointer"
+                            },
+                            "id": 260,
+                            "name": "UserDefinedTypeName",
+                            "src": "1731:5:1"
+                          }
+                        ],
+                        "id": 261,
+                        "name": "VariableDeclaration",
+                        "src": "1731:20:1"
+                      },
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": true,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "type": "struct TittyBase.Titty storage ref"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 95,
+                              "type": "struct TittyBase.Titty storage ref[] storage ref",
+                              "value": "Titties"
+                            },
+                            "id": 262,
+                            "name": "Identifier",
+                            "src": "1754:7:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 257,
+                              "type": "uint256",
+                              "value": "_tittyId"
+                            },
+                            "id": 263,
+                            "name": "Identifier",
+                            "src": "1762:8:1"
+                          }
+                        ],
+                        "id": 264,
+                        "name": "IndexAccess",
+                        "src": "1754:17:1"
+                      }
+                    ],
+                    "id": 265,
+                    "name": "VariableDeclarationStatement",
+                    "src": "1731:40:1"
+                  },
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "++",
+                          "prefix": false,
+                          "type": "uint256"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": true,
+                              "member_name": "likes",
+                              "referencedDeclaration": 91,
+                              "type": "uint256"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 261,
+                                  "type": "struct TittyBase.Titty storage pointer",
+                                  "value": "_titty"
+                                },
+                                "id": 266,
+                                "name": "Identifier",
+                                "src": "1781:6:1"
+                              }
+                            ],
+                            "id": 268,
+                            "name": "MemberAccess",
+                            "src": "1781:12:1"
+                          }
+                        ],
+                        "id": 269,
+                        "name": "UnaryOperation",
+                        "src": "1781:14:1"
+                      }
+                    ],
+                    "id": 270,
+                    "name": "ExpressionStatement",
+                    "src": "1781:14:1"
+                  },
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "=",
+                          "type": "struct TittyBase.Titty storage ref"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": true,
+                              "type": "struct TittyBase.Titty storage ref"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 95,
+                                  "type": "struct TittyBase.Titty storage ref[] storage ref",
+                                  "value": "Titties"
+                                },
+                                "id": 271,
+                                "name": "Identifier",
+                                "src": "1806:7:1"
+                              },
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 257,
+                                  "type": "uint256",
+                                  "value": "_tittyId"
+                                },
+                                "id": 272,
+                                "name": "Identifier",
+                                "src": "1814:8:1"
+                              }
+                            ],
+                            "id": 273,
+                            "name": "IndexAccess",
+                            "src": "1806:17:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 261,
+                              "type": "struct TittyBase.Titty storage pointer",
+                              "value": "_titty"
+                            },
+                            "id": 274,
+                            "name": "Identifier",
+                            "src": "1826:6:1"
+                          }
+                        ],
+                        "id": 275,
+                        "name": "Assignment",
+                        "src": "1806:26:1"
+                      }
+                    ],
+                    "id": 276,
+                    "name": "ExpressionStatement",
+                    "src": "1806:26:1"
+                  }
+                ],
+                "id": 277,
+                "name": "Block",
+                "src": "1712:127:1"
+              }
+            ],
+            "id": 278,
+            "name": "FunctionDefinition",
+            "src": "1664:175:1"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "implemented": true,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "createTitty",
+              "payable": false,
+              "scope": 328,
+              "stateMutability": "nonpayable",
+              "superFunction": null,
+              "visibility": "internal"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_id",
+                      "scope": 327,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint32",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint32",
+                          "type": "uint32"
+                        },
+                        "id": 279,
+                        "name": "ElementaryTypeName",
+                        "src": "1867:6:1"
+                      }
+                    ],
+                    "id": 280,
+                    "name": "VariableDeclaration",
+                    "src": "1867:10:1"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_gender",
+                      "scope": 327,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "string memory",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "string",
+                          "type": "string storage pointer"
+                        },
+                        "id": 281,
+                        "name": "ElementaryTypeName",
+                        "src": "1879:6:1"
+                      }
+                    ],
+                    "id": 282,
+                    "name": "VariableDeclaration",
+                    "src": "1879:14:1"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_price",
+                      "scope": 327,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 283,
+                        "name": "ElementaryTypeName",
+                        "src": "1895:7:1"
+                      }
+                    ],
+                    "id": 284,
+                    "name": "VariableDeclaration",
+                    "src": "1895:14:1"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_owner",
+                      "scope": 327,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "type": "address"
+                        },
+                        "id": 285,
+                        "name": "ElementaryTypeName",
+                        "src": "1911:7:1"
+                      }
+                    ],
+                    "id": 286,
+                    "name": "VariableDeclaration",
+                    "src": "1911:14:1"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_name",
+                      "scope": 327,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "string memory",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "string",
+                          "type": "string storage pointer"
+                        },
+                        "id": 287,
+                        "name": "ElementaryTypeName",
+                        "src": "1927:6:1"
+                      }
+                    ],
+                    "id": 288,
+                    "name": "VariableDeclaration",
+                    "src": "1927:12:1"
+                  }
+                ],
+                "id": 289,
+                "name": "ParameterList",
+                "src": "1866:74:1"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "",
+                      "scope": 327,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint",
+                          "type": "uint256"
+                        },
+                        "id": 290,
+                        "name": "ElementaryTypeName",
+                        "src": "1959:4:1"
+                      }
+                    ],
+                    "id": 291,
+                    "name": "VariableDeclaration",
+                    "src": "1959:4:1"
+                  }
+                ],
+                "id": 292,
+                "name": "ParameterList",
+                "src": "1958:6:1"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "assignments": [
+                        294
+                      ]
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "constant": false,
+                          "name": "_titty",
+                          "scope": 327,
+                          "stateVariable": false,
+                          "storageLocation": "memory",
+                          "type": "struct TittyBase.Titty memory",
+                          "value": null,
+                          "visibility": "internal"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "contractScope": null,
+                              "name": "Titty",
+                              "referencedDeclaration": 92,
+                              "type": "struct TittyBase.Titty storage pointer"
+                            },
+                            "id": 293,
+                            "name": "UserDefinedTypeName",
+                            "src": "1976:5:1"
+                          }
+                        ],
+                        "id": 294,
+                        "name": "VariableDeclaration",
+                        "src": "1976:19:1"
+                      },
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "isStructConstructorCall": true,
+                          "lValueRequested": false,
+                          "names": [
+                            "id",
+                            "name",
+                            "gender",
+                            "price",
+                            "forSale",
+                            "likes"
+                          ],
+                          "type": "struct TittyBase.Titty memory",
+                          "type_conversion": false
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 92,
+                              "type": "type(struct TittyBase.Titty storage pointer)",
+                              "value": "Titty"
+                            },
+                            "id": 295,
+                            "name": "Identifier",
+                            "src": "1998:5:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 280,
+                              "type": "uint32",
+                              "value": "_id"
+                            },
+                            "id": 296,
+                            "name": "Identifier",
+                            "src": "2022:3:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 288,
+                              "type": "string memory",
+                              "value": "_name"
+                            },
+                            "id": 297,
+                            "name": "Identifier",
+                            "src": "2045:5:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 282,
+                              "type": "string memory",
+                              "value": "_gender"
+                            },
+                            "id": 298,
+                            "name": "Identifier",
+                            "src": "2072:7:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 284,
+                              "type": "uint256",
+                              "value": "_price"
+                            },
+                            "id": 299,
+                            "name": "Identifier",
+                            "src": "2100:6:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "hexvalue": "66616c7365",
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "lValueRequested": false,
+                              "subdenomination": null,
+                              "token": "bool",
+                              "type": "bool",
+                              "value": "false"
+                            },
+                            "id": 300,
+                            "name": "Literal",
+                            "src": "2129:5:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "hexvalue": "30",
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "lValueRequested": false,
+                              "subdenomination": null,
+                              "token": "number",
+                              "type": "int_const 0",
+                              "value": "0"
+                            },
+                            "id": 301,
+                            "name": "Literal",
+                            "src": "2155:1:1"
+                          }
+                        ],
+                        "id": 302,
+                        "name": "FunctionCall",
+                        "src": "1998:169:1"
+                      }
+                    ],
+                    "id": 303,
+                    "name": "VariableDeclarationStatement",
+                    "src": "1976:191:1"
+                  },
+                  {
+                    "attributes": {
+                      "assignments": [
+                        305
+                      ]
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "constant": false,
+                          "name": "newTittyId",
+                          "scope": 327,
+                          "stateVariable": false,
+                          "storageLocation": "default",
+                          "type": "uint256",
+                          "value": null,
+                          "visibility": "internal"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "name": "uint256",
+                              "type": "uint256"
+                            },
+                            "id": 304,
+                            "name": "ElementaryTypeName",
+                            "src": "2178:7:1"
+                          }
+                        ],
+                        "id": 305,
+                        "name": "VariableDeclaration",
+                        "src": "2178:18:1"
+                      },
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "commonType": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          },
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "-",
+                          "type": "uint256"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "isStructConstructorCall": false,
+                              "lValueRequested": false,
+                              "names": [
+                                null
+                              ],
+                              "type": "uint256",
+                              "type_conversion": false
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": [
+                                    {
+                                      "typeIdentifier": "t_struct$_Titty_$92_memory_ptr",
+                                      "typeString": "struct TittyBase.Titty memory"
+                                    }
+                                  ],
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "member_name": "push",
+                                  "referencedDeclaration": null,
+                                  "type": "function (struct TittyBase.Titty storage ref) returns (uint256)"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 95,
+                                      "type": "struct TittyBase.Titty storage ref[] storage ref",
+                                      "value": "Titties"
+                                    },
+                                    "id": 306,
+                                    "name": "Identifier",
+                                    "src": "2199:7:1"
+                                  }
+                                ],
+                                "id": 307,
+                                "name": "MemberAccess",
+                                "src": "2199:12:1"
+                              },
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 294,
+                                  "type": "struct TittyBase.Titty memory",
+                                  "value": "_titty"
+                                },
+                                "id": 308,
+                                "name": "Identifier",
+                                "src": "2212:6:1"
+                              }
+                            ],
+                            "id": 309,
+                            "name": "FunctionCall",
+                            "src": "2199:20:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "hexvalue": "31",
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "lValueRequested": false,
+                              "subdenomination": null,
+                              "token": "number",
+                              "type": "int_const 1",
+                              "value": "1"
+                            },
+                            "id": 310,
+                            "name": "Literal",
+                            "src": "2222:1:1"
+                          }
+                        ],
+                        "id": 311,
+                        "name": "BinaryOperation",
+                        "src": "2199:24:1"
+                      }
+                    ],
+                    "id": 312,
+                    "name": "VariableDeclarationStatement",
+                    "src": "2178:45:1"
+                  },
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "isStructConstructorCall": false,
+                          "lValueRequested": false,
+                          "names": [
+                            null
+                          ],
+                          "type": "tuple()",
+                          "type_conversion": false
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_address",
+                                  "typeString": "address"
+                                },
+                                {
+                                  "typeIdentifier": "t_uint256",
+                                  "typeString": "uint256"
+                                }
+                              ],
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 79,
+                              "type": "function (address,uint256)",
+                              "value": "Creation"
+                            },
+                            "id": 313,
+                            "name": "Identifier",
+                            "src": "2234:8:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 286,
+                              "type": "address",
+                              "value": "_owner"
+                            },
+                            "id": 314,
+                            "name": "Identifier",
+                            "src": "2256:6:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 305,
+                              "type": "uint256",
+                              "value": "newTittyId"
+                            },
+                            "id": 315,
+                            "name": "Identifier",
+                            "src": "2276:10:1"
+                          }
+                        ],
+                        "id": 316,
+                        "name": "FunctionCall",
+                        "src": "2234:62:1"
+                      }
+                    ],
+                    "id": 317,
+                    "name": "ExpressionStatement",
+                    "src": "2234:62:1"
+                  },
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "isStructConstructorCall": false,
+                          "lValueRequested": false,
+                          "names": [
+                            null
+                          ],
+                          "type": "tuple()",
+                          "type_conversion": false
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_rational_0_by_1",
+                                  "typeString": "int_const 0"
+                                },
+                                {
+                                  "typeIdentifier": "t_address",
+                                  "typeString": "address"
+                                },
+                                {
+                                  "typeIdentifier": "t_uint256",
+                                  "typeString": "uint256"
+                                }
+                              ],
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 150,
+                              "type": "function (address,address,uint256)",
+                              "value": "_transfer"
+                            },
+                            "id": 318,
+                            "name": "Identifier",
+                            "src": "2307:9:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "hexvalue": "30",
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "lValueRequested": false,
+                              "subdenomination": null,
+                              "token": "number",
+                              "type": "int_const 0",
+                              "value": "0"
+                            },
+                            "id": 319,
+                            "name": "Literal",
+                            "src": "2317:1:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 286,
+                              "type": "address",
+                              "value": "_owner"
+                            },
+                            "id": 320,
+                            "name": "Identifier",
+                            "src": "2320:6:1"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 305,
+                              "type": "uint256",
+                              "value": "newTittyId"
+                            },
+                            "id": 321,
+                            "name": "Identifier",
+                            "src": "2328:10:1"
+                          }
+                        ],
+                        "id": 322,
+                        "name": "FunctionCall",
+                        "src": "2307:32:1"
+                      }
+                    ],
+                    "id": 323,
+                    "name": "ExpressionStatement",
+                    "src": "2307:32:1"
+                  },
+                  {
+                    "attributes": {
+                      "functionReturnParameters": 292
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "overloadedDeclarations": [
+                            null
+                          ],
+                          "referencedDeclaration": 305,
+                          "type": "uint256",
+                          "value": "newTittyId"
+                        },
+                        "id": 324,
+                        "name": "Identifier",
+                        "src": "2356:10:1"
+                      }
+                    ],
+                    "id": 325,
+                    "name": "Return",
+                    "src": "2349:17:1"
+                  }
+                ],
+                "id": 326,
+                "name": "Block",
+                "src": "1965:408:1"
+              }
+            ],
+            "id": 327,
+            "name": "FunctionDefinition",
+            "src": "1845:528:1"
+          }
+        ],
+        "id": 328,
+        "name": "ContractDefinition",
+        "src": "26:2356:1"
+      }
+    ],
+    "id": 329,
+    "name": "SourceUnit",
+    "src": "0:2382:1"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.18+commit.9cf6e910.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "1.0.1",
+  "updatedAt": "2017-12-20T05:23:14.666Z"
+}
