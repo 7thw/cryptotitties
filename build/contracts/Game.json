@@ -8,18 +8,18 @@
       "type": "constructor"
     }
   ],
-  "bytecode": "0x60606040523415600e57600080fd5b603580601b6000396000f3006060604052600080fd00a165627a7a72305820f61fb29fb5babcecb6a5f6c53dd49c01b9159c38df5ceecaf88e17cfa8e824ac0029",
-  "deployedBytecode": "0x6060604052600080fd00a165627a7a72305820f61fb29fb5babcecb6a5f6c53dd49c01b9159c38df5ceecaf88e17cfa8e824ac0029",
-  "sourceMap": "26:56:1:-;;;47:32;;;;;;;;26:56;;;;;;",
-  "deployedSourceMap": "26:56:1:-;;;;;",
-  "source": "pragma solidity ^0.4.18;\n\ncontract Game {\n\n    function Game() {\n        \n    }\n\n}",
+  "bytecode": "0x60606040523415600e57600080fd5b603580601b6000396000f3006060604052600080fd00a165627a7a7230582051cbed965265d634c7ffecbbea2ad88392421eb50f4685b2c239db9aaa26825f0029",
+  "deployedBytecode": "0x6060604052600080fd00a165627a7a7230582051cbed965265d634c7ffecbbea2ad88392421eb50f4685b2c239db9aaa26825f0029",
+  "sourceMap": "26:63:0:-;;;47:39;;;;;;;;26:63;;;;;;",
+  "deployedSourceMap": "26:63:0:-;;;;;",
+  "source": "pragma solidity ^0.4.18;\n\ncontract Game {\n\n    function Game() public {\n        \n    }\n\n}",
   "sourcePath": "/Users/rogerssampaio/Sites/cryptotitties/contracts/Game.sol",
   "ast": {
     "attributes": {
       "absolutePath": "/Users/rogerssampaio/Sites/cryptotitties/contracts/Game.sol",
       "exportedSymbols": {
         "Game": [
-          72
+          6
         ]
       }
     },
@@ -33,9 +33,9 @@
             ".18"
           ]
         },
-        "id": 67,
+        "id": 1,
         "name": "PragmaDirective",
-        "src": "0:24:1"
+        "src": "0:24:0"
       },
       {
         "attributes": {
@@ -49,10 +49,10 @@
           "documentation": null,
           "fullyImplemented": true,
           "linearizedBaseContracts": [
-            72
+            6
           ],
           "name": "Game",
-          "scope": 73
+          "scope": 7
         },
         "children": [
           {
@@ -65,7 +65,7 @@
               ],
               "name": "Game",
               "payable": false,
-              "scope": 72,
+              "scope": 6,
               "stateMutability": "nonpayable",
               "superFunction": null,
               "visibility": "public"
@@ -78,9 +78,9 @@
                   ]
                 },
                 "children": [],
-                "id": 68,
+                "id": 2,
                 "name": "ParameterList",
-                "src": "60:2:1"
+                "src": "60:2:0"
               },
               {
                 "attributes": {
@@ -89,9 +89,9 @@
                   ]
                 },
                 "children": [],
-                "id": 69,
+                "id": 3,
                 "name": "ParameterList",
-                "src": "63:0:1"
+                "src": "70:0:0"
               },
               {
                 "attributes": {
@@ -100,24 +100,24 @@
                   ]
                 },
                 "children": [],
-                "id": 70,
+                "id": 4,
                 "name": "Block",
-                "src": "63:16:1"
+                "src": "70:16:0"
               }
             ],
-            "id": 71,
+            "id": 5,
             "name": "FunctionDefinition",
-            "src": "47:32:1"
+            "src": "47:39:0"
           }
         ],
-        "id": 72,
+        "id": 6,
         "name": "ContractDefinition",
-        "src": "26:56:1"
+        "src": "26:63:0"
       }
     ],
-    "id": 73,
+    "id": 7,
     "name": "SourceUnit",
-    "src": "0:82:1"
+    "src": "0:89:0"
   },
   "compiler": {
     "name": "solc",
@@ -125,5 +125,5 @@
   },
   "networks": {},
   "schemaVersion": "1.0.1",
-  "updatedAt": "2017-12-20T01:52:25.627Z"
+  "updatedAt": "2017-12-22T17:33:22.832Z"
 }

@@ -3,26 +3,20 @@ var TittyPurchase = artifacts.require("TittyPurchase");
 
 contract('TittyPurchase', function(accounts) {
     var titty;
-  it("should purchase one titty", function() {
+  it(accounts[1] + " Own this", function() {
     return TittyPurchase.deployed().then(function(instance) {
       titty = instance;
-      return titty.purchaseNew(1, "Titty Two", "female", web3.toWei(1, "ether"), {from: accounts[1], value:web3.toWei(1.10, "ether")});
-    }).then(function() {
-      return titty.getAmountOfTitties.call();
-    }).then(function(value) {
-        assert.equal(value, 2, "2 is the right amount of titties");        
+      return titty.purchaseNew(2, "Titty Three", "female", web3.toWei(1, "ether"), {from: accounts[1], value:web3.toWei(1, "ether")});
+    }).then(function(results) {
+      return titty.purchaseNew(3, "Titty Three", "female", web3.toWei(1, "ether"), {from: accounts[2], value:web3.toWei(1, "ether")});
+    }).then(function(results) {
+      return titty.getTittyByWpId.call(accounts[2], 3);
+    }).then(function(results) {
+        console.log(results[1]);
+        assert.equal(results[0], true, "I Own this");        
     });
   });
-  it("should have 2 titties", function() {
-    return TittyPurchase.deployed().then(function(instance) {
-      titty = instance;
-      return titty.purchaseNew(2, "Titty Three", "female", web3.toWei(1, "ether"), {from: accounts[2], value:web3.toWei(1.10, "ether")});
-    }).then(function() {
-      return titty.getAmountOfTitties.call();
-    }).then(function(value) {
-        assert.equal(value, 3, "3 is the right amount of titties");        
-    });
-  });
+  /*
   it("should have have name Titty Two", function() {
     return TittyPurchase.deployed().then(function(instance) {
       titty = instance;
@@ -41,5 +35,5 @@ contract('TittyPurchase', function(accounts) {
     }).then(function(result) {
         assert.equal(result, true, "It doenst belong to " + accounts[3]);        
     });
-  });
+  }); */
 });
