@@ -3,6 +3,7 @@ var TittyPurchase = artifacts.require("TittyPurchase");
 
 contract('TittyPurchase', function(accounts) {
     var titty;
+    var tId;
   it(accounts[1] + " Own this", function() {
     return TittyPurchase.deployed().then(function(instance) {
       titty = instance;
@@ -12,9 +13,24 @@ contract('TittyPurchase', function(accounts) {
     }).then(function(results) {
       return titty.getTittyByWpId.call(accounts[2], 3);
     }).then(function(results) {
-        console.log(results[1]);
         assert.equal(results[0], true, "I Own this");        
     });
+  });
+
+  it(accounts[1] + " Successfuly Purchased Accessory", function() {
+    return TittyPurchase.deployed().then(function(instance) {
+      titty = instance;
+      return titty.purchaseNew(4, "Titty Three", "female", web3.toWei(1, "ether"), {from: accounts[1], value:web3.toWei(1, "ether")});
+    }).then(function(results) {
+      return titty.getTittyByWpId.call(accounts[1], 4);
+    }).then(function(results) {
+      tId = results[1].toString();
+      return titty.purchaseAccessory(tId, 1, "Necklace", web3.toWei(1, "ether"), {from: accounts[1], value:web3.toWei(1, "ether")});
+    }).then(function(results) {
+       return titty.totalAccessories.call(tId);
+    }).then(function(result) {
+       assert.isAbove(result, 0, " Should have Purchased Accessory");        
+   });
   });
   /*
   it("should have have name Titty Two", function() {

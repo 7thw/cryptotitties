@@ -4,12 +4,10 @@ import "./TittyOwnership.sol";
 
 contract TittyPurchase is TittyOwnership {
 
-    address private charity;
     address private wallet;
     address private boat;
 
-    function TittyPurchase(address _charity, address _wallet, address _boat) public {
-        charity = _charity;
+    function TittyPurchase(address _wallet, address _boat) public {
         wallet = _wallet;
         boat = _boat;
 
@@ -31,8 +29,8 @@ contract TittyPurchase is TittyOwnership {
     function purchaseExistent(uint256 _tittyId) public payable {
 
         Titty storage titty = Titties[_tittyId];
-        uint256 fee = calculateFee(titty.price);
-        if (msg.value == 0 && msg.value != titty.price)
+        uint256 fee = calculateFee(titty.salePrice);
+        if (msg.value == 0 && msg.value != titty.salePrice)
             revert();
         
         uint256 val = msg.value - fee;
@@ -42,6 +40,17 @@ contract TittyPurchase is TittyOwnership {
         owner.transfer(val);
         wallet.transfer(fee);
 
+    }
+
+    function purchaseAccessory(uint256 _tittyId, uint256 _accId, string _name, uint256 _price) public payable {
+
+        if (msg.value == 0 && msg.value != _price)
+            revert();
+
+        wallet.transfer(msg.value);
+        addAccessory(_accId, _name, _price,  _tittyId);
+        
+        
     }
 
     function getAmountOfTitties() public view returns(uint) {
@@ -69,20 +78,12 @@ contract TittyPurchase is TittyOwnership {
         return _isOwner(_account, _tittyId);
     }
 
-    function like(uint256 _tittyId, uint256 _amount) public payable {
-
-        if (msg.value < 0)
-            revert();
-
-        uint256 fee = calculateCharityFee(msg.value);
-        charity.transfer(fee);
-        wallet.transfer(msg.value - fee);
-        _likeTitty(_tittyId, _amount);
-
-    }
-
     function changePrice(uint256 _price, uint256 _tittyId) public {
         _changeTittyPrice(_price, _tittyId);
+    }
+
+    function changeName(string _name, uint256 _tittyId) public {
+        _changeName(_name, _tittyId);
     }
 
     function makeItSellable(uint256 _tittyId) public {
@@ -91,10 +92,6 @@ contract TittyPurchase is TittyOwnership {
 
     function calculateFee (uint256 _price) internal pure returns(uint) {
         return (_price * 10)/100;
-    }
-
-    function calculateCharityFee (uint256 _price) internal pure returns(uint) {
-        return (_price * 70)/100;
     }
 
     function calculateBoatFee (uint256 _price) internal pure returns(uint) {
@@ -110,20 +107,18 @@ contract TittyPurchase is TittyOwnership {
         uint256 id,
         string name,
         string gender,
-        uint256 price,
-        bool forSale,
-        uint256 likes
-
+        uint256 originalPrice,
+        uint256 salePrice,
+        bool forSale
         ) {
 
             Titty storage titty = Titties[_tittyId];
             id = titty.id;
             name = titty.name;
             gender = titty.gender;
-            price = titty.price;
+            originalPrice = titty.originalPrice;
+            salePrice = titty.salePrice;
             forSale = titty.forSale;
-            likes = titty.likes;
-
         }
 
 }
