@@ -1,5 +1,5 @@
-// Specifically request an abstraction for MetaCoin
 var TittyPurchase = artifacts.require("TittyPurchase");
+
 
 contract('TittyPurchase', function(accounts) {
     var titty;
